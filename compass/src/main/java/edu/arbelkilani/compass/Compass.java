@@ -119,9 +119,9 @@ public class Compass extends RelativeLayout implements SensorEventListener {
         mDegreeTextView = findViewById(R.id.tv_degree);
 
         final CompassSkeleton compassSkeleton = findViewById(R.id.compass_skeleton);
-        compassSkeleton.setDegreesColor(mDegreesColor);
-        compassSkeleton.setShowOrientationLabel(mShowOrientationLabels);
-        compassSkeleton.setShowBorder(mShowBorder);
+        compassSkeleton.setDegreesColor(true);
+        compassSkeleton.setShowOrientationLabel(true);
+        compassSkeleton.setShowBorder(true);
         compassSkeleton.setBorderColor(mBorderColor);
 
         try {

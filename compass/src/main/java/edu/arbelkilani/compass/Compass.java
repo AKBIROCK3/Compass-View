@@ -211,5 +211,14 @@ public class Compass extends RelativeLayout implements SensorEventListener {
     public void setListener(CompassListener compassListener) {
         mCompassListener = compassListener;
     }
+    public void start() {
+    SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
+    mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+}
+    public void stop() {
+    SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
+    mSensorManager.unregisterListener(this);
+}
+
 }
 

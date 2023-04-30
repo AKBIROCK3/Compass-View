@@ -189,8 +189,7 @@ public void onSensorChanged(SensorEvent event) {
 
         // Notify listener if set
         if (mCompassListener != null) {
-            mCompassListener.onNewDegree(mCurrentDegree);
-        }
+            mCompassListener.onSensorChanged(event);
 
         // Update the compass view
         RotateAnimation rotateAnimation = new RotateAnimation(-mCurrentDegree, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);

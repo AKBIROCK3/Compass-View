@@ -89,7 +89,7 @@ public class Compass extends RelativeLayout implements SensorEventListener {
         LayoutInflater.from(context).inflate(R.layout.compass_layout, this, true);
 
         SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
-        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_GAME);
 
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.Compass, 0, 0);
 

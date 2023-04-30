@@ -166,23 +166,40 @@ mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYP
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
+public void onSensorChanged(SensorEvent event) {
+    if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+        float[] rotationMatrix = new float[16];
+        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
 
-        if (mCompassListener != null) {
-            mCompassListener.onSensorChanged(event);
+        float[] orientation = new float[3];
+        SensorManager.getOrientation(rotationMatrix, orientation);
+
+        // Convert to degrees
+        float azimuthInRadians = orientation[0];
+        float azimuthInDegrees = (float) Math.toDegrees(azimuthInRadians);
+
+        // Adjust for negative values
+        if (azimuthInDegrees < 0) {
+            azimuthInDegrees += 360;
         }
 
-        float degree = Math.round(event.values[0]);
+        // Update current degree
+        mCurrentDegree = azimuthInDegrees;
 
-        RotateAnimation rotateAnimation = new RotateAnimation(mCurrentDegree, -degree, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        rotateAnimation.setDuration(210);
+        // Notify listener if set
+        if (mCompassListener != null) {
+            mCompassListener.onNewDegree(mCurrentDegree);
+        }
+
+        // Update the compass view
+        RotateAnimation rotateAnimation = new RotateAnimation(-mCurrentDegree, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateAnimation.setDuration(250);
         rotateAnimation.setFillAfter(true);
         mNeedleImageView.startAnimation(rotateAnimation);
-
-        updateTextDirection(mCurrentDegree);
-
-        mCurrentDegree = -degree;
+        mDegreeTextView.setText(String.format(Locale.getDefault(), "%.1f%s", mCurrentDegree, DEGREE));
     }
+}
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

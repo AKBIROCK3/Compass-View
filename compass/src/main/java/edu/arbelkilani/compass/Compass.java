@@ -90,7 +90,7 @@ public class Compass extends RelativeLayout implements SensorEventListener {
         LayoutInflater.from(context).inflate(R.layout.compass_layout, this, true);
 
         SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
-mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_GAME);
 
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.Compass, 0, 0);
 
@@ -167,75 +167,76 @@ mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYP
     }
 
     @Override
-public void onSensorChanged(SensorEvent event) {
-    if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-        float[] rotationMatrix = new float[16];
-        SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            float[] rotationMatrix = new float[16];
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
 
-        float[] orientation = new float[3];
-        SensorManager.getOrientation(rotationMatrix, orientation);
+            float[] orientation = new float[3];
+            SensorManager.getOrientation(rotationMatrix, orientation);
 
-        // Convert to degrees
-        float azimuthInRadians = orientation[0];
-        float azimuthInDegrees = (float) Math.toDegrees(azimuthInRadians);
+            // Convert to degrees
+            float azimuthInRadians = orientation[0];
+            float azimuthInDegrees = (float) Math.toDegrees(azimuthInRadians);
 
-        // Adjust for negative values
-        if (azimuthInDegrees < 0) {
-            azimuthInDegrees += 360;
+            // Adjust for negative values
+            if (azimuthInDegrees < 0) {
+                azimuthInDegrees += 360;
+            }
+
+            // Update current degree
+            mCurrentDegree = azimuthInDegrees;
+
+            // Notify listener if set
+            if (mCompassListener != null) {
+                mCompassListener.onSensorChanged(event);
+
+                // Update the compass view
+                RotateAnimation rotateAnimation = new RotateAnimation(-mCurrentDegree, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                rotateAnimation.setDuration(250);
+                rotateAnimation.setFillAfter(true);
+                mNeedleImageView.startAnimation(rotateAnimation);
+                mDegreeTextView.setText(String.format(Locale.getDefault(), "%.1f%s", mCurrentDegree, DEGREE));
+            }
+        }
         }
 
-        // Update current degree
-        mCurrentDegree = azimuthInDegrees;
 
-        // Notify listener if set
-        if (mCompassListener != null) {
-            mCompassListener.onSensorChanged(event);
-
-        // Update the compass view
-        RotateAnimation rotateAnimation = new RotateAnimation(-mCurrentDegree, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        rotateAnimation.setDuration(250);
-        rotateAnimation.setFillAfter(true);
-        mNeedleImageView.startAnimation(rotateAnimation);
-        mDegreeTextView.setText(String.format(Locale.getDefault(), "%.1f%s", mCurrentDegree, DEGREE));
-    }
-}
-
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        if (mCompassListener != null) {
-            mCompassListener.onAccuracyChanged(sensor, accuracy);
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            if (mCompassListener != null) {
+                mCompassListener.onAccuracyChanged(sensor, accuracy);
+            }
         }
-    }
 
-    private void updateTextDirection(double degree) {
-        double deg = 360 + degree;
-        DecimalFormat decimalFormat = new DecimalFormat("###.#");
-        String value;
-        if (deg > 0 && deg <= 90) {
-            value = String.format("%s%s NE", String.valueOf(decimalFormat.format(-degree)), DEGREE);
-        } else if (deg > 90 && deg <= 180) {
-            value = String.format("%s%s ES", String.valueOf(decimalFormat.format(-degree)), DEGREE);
-        } else if (deg > 180 && deg <= 270) {
-            value = String.format("%s%s SW", String.valueOf(decimalFormat.format(-degree)), DEGREE);
-        } else {
-            value = String.format("%s%s WN", String.valueOf(decimalFormat.format(-degree)), DEGREE);
+        private void updateTextDirection(double degree) {
+            double deg = 360 + degree;
+            DecimalFormat decimalFormat = new DecimalFormat("###.#");
+            String value;
+            if (deg > 0 && deg <= 90) {
+                value = String.format("%s%s NE", String.valueOf(decimalFormat.format(-degree)), DEGREE);
+            } else if (deg > 90 && deg <= 180) {
+                value = String.format("%s%s ES", String.valueOf(decimalFormat.format(-degree)), DEGREE);
+            } else if (deg > 180 && deg <= 270) {
+                value = String.format("%s%s SW", String.valueOf(decimalFormat.format(-degree)), DEGREE);
+            } else {
+                value = String.format("%s%s WN", String.valueOf(decimalFormat.format(-degree)), DEGREE);
+            }
+            mDegreeTextView.setText(value);
         }
-        mDegreeTextView.setText(value);
+
+
+        public void setListener(CompassListener compassListener) {
+            mCompassListener = compassListener;
+        }
+        public void start() {
+            SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
+            mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+        }
+        public void stop() {
+            SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
+            mSensorManager.unregisterListener(this);
+        }
+
     }
-
-
-    public void setListener(CompassListener compassListener) {
-        mCompassListener = compassListener;
-    }
-    public void start() {
-    SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
-    mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
-}
-    public void stop() {
-    SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
-    mSensorManager.unregisterListener(this);
-}
-
-}
 

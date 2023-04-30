@@ -230,8 +230,9 @@ public class Compass extends RelativeLayout implements SensorEventListener {
             mCompassListener = compassListener;
         }
         public void start() {
-            SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
-            mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+        SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_GAME);
+
         }
         public void stop() {
             SensorManager mSensorManager = (SensorManager) getContext().getSystemService(SENSOR_SERVICE);
